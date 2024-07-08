@@ -7,25 +7,33 @@ import { Form } from "@/components/ui/form"
 import CustomFormField, { FormFieldType } from "../CustomFormField"
 import { useState } from "react"
 import SubmitButton from "../SubmitButton"
-
-const formSchema = z.object({
-    username: z.string().min(2, {
-        message: "Username must be at least 2 characters.",
-    }),
-})
+import { UserFormValidation } from "@/lib/validation"
 
 const PatientForm = () => {
     const [isLoading, setIsLoading] = useState(false);
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof UserFormValidation>>({
+        resolver: zodResolver(UserFormValidation),
         defaultValues: {
-            username: "",
+            name: "",
+            email: "",
+            phone: "",
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    const onSubmit = async (values: z.infer<typeof UserFormValidation>) => {
+        setIsLoading(true);
+        try {
+            const user = {
+                name: values.name,
+                email: values.email,
+                phone: values.phone,
+            };
+            console.log(user)
+        } catch (error) {
+            console.log(error);
+        }
+        setIsLoading(false);
     }
 
     return (

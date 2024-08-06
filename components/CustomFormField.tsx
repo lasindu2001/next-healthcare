@@ -7,6 +7,8 @@ import { Input } from "./ui/input"
 import Image from "next/image";
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export enum FormFieldType {
     INPUT = "input",
@@ -70,6 +72,32 @@ const RenderInput = ({ field, props }: { field: any; props: CustomProps }) => {
                     />
                 </FormControl>
             );
+        case FormFieldType.DATE_PICKER:
+            return (
+                <div className="flex rounded-md border border-dark-500 bg-dark-400">
+                    <Image
+                        src="/assets/icons/calendar.svg"
+                        height={24}
+                        width={24}
+                        alt="user"
+                        className="ml-2"
+                    />
+                    <FormControl>
+                        <DatePicker
+                            selected={field.value}
+                            onChange={(date) => field.onChange(date)}
+                            showTimeSelect={props.showTimeSelect ?? false}
+                            dateFormat={props.dateFormat ?? "MM/dd/yyyy"}
+                            timeInputLabel="Time:"
+                            wrapperClassName="date-picker"
+                        />
+                    </FormControl>
+                </div>
+            );
+        case FormFieldType.SKELETON:
+            return (
+                props.renderSkeleton ? props.renderSkeleton(field) : null
+            )
         default:
             return null;
     }

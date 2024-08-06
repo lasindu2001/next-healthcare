@@ -8,8 +8,11 @@ import CustomFormField, { FormFieldType } from "../CustomFormField"
 import { useState } from "react"
 import SubmitButton from "../SubmitButton"
 import { UserFormValidation } from "@/lib/validation"
+import { createUser } from "@/lib/actions/patient.actions"
+import { useRouter } from "next/navigation"
 
 const PatientForm = () => {
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<z.infer<typeof UserFormValidation>>({
@@ -24,12 +27,15 @@ const PatientForm = () => {
     const onSubmit = async (values: z.infer<typeof UserFormValidation>) => {
         setIsLoading(true);
         try {
-            const user = {
+            const userData = {
                 name: values.name,
                 email: values.email,
                 phone: values.phone,
             };
-            console.log(user)
+            const newUser = await createUser(userData);
+            if (newUser) {
+                router.push(`/patients/${newUser.$id}/register`);
+            }
         } catch (error) {
             console.log(error);
         }

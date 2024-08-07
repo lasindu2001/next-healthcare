@@ -5,12 +5,13 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PatientFormValidation } from '@/lib/validation';
-import { Doctors, GenderOptions, PatientFormDefaultValues } from '@/constants';
+import { Doctors, GenderOptions, IdentificationTypes, PatientFormDefaultValues } from '@/constants';
 import CustomFormField, { FormFieldType } from '../CustomFormField';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import Image from 'next/image';
 import { SelectItem } from '../ui/select';
+import FileUploader from '../FileUploader';
 
 const RegisterForm = ({ user }: { user: User }) => {
     const form = useForm<z.infer<typeof PatientFormValidation>>({
@@ -123,14 +124,14 @@ const RegisterForm = ({ user }: { user: User }) => {
                             fieldType={FormFieldType.INPUT}
                             control={form.control}
                             name="emergencyContactName"
-                            label="Emergency contact name"
-                            placeholder="Guardian's name"
+                            label="Emergency Contact Name"
+                            placeholder="Guardian's Name"
                         />
                         <CustomFormField
                             fieldType={FormFieldType.PHONE_INPUT}
                             control={form.control}
                             name="emergencyContactNumber"
-                            label="Emergency contact number"
+                            label="Emergency Contact Number"
                             placeholder="(555) 123-4567"
                         />
                     </div>
@@ -202,17 +203,53 @@ const RegisterForm = ({ user }: { user: User }) => {
                             fieldType={FormFieldType.TEXTAREA}
                             control={form.control}
                             name="familyMedicalHistory"
-                            label=" Family medical history (if relevant)"
+                            label=" Family Medical History (if relevant)"
                             placeholder="Mother had brain cancer, Father has hypertension"
                         />
                         <CustomFormField
                             fieldType={FormFieldType.TEXTAREA}
                             control={form.control}
                             name="pastMedicalHistory"
-                            label="Past medical history"
+                            label="Past Medical History"
                             placeholder="Appendectomy in 2015, Asthma diagnosis in childhood"
                         />
                     </div>
+                </section>
+                <section className="space-y-6">
+                    <div className="mb-9 space-y-1">
+                        <h2 className="sub-header">Identification and Verfication</h2>
+                    </div>
+                    <CustomFormField
+                        fieldType={FormFieldType.SELECT}
+                        control={form.control}
+                        name="identificationType"
+                        label="Identification Type"
+                        placeholder="Select Identification Type"
+                    >
+                        {IdentificationTypes.map((type, i) => (
+                            <SelectItem key={type + i} value={type}>
+                                {type}
+                            </SelectItem>
+                        ))}
+                    </CustomFormField>
+                    <CustomFormField
+                        fieldType={FormFieldType.INPUT}
+                        control={form.control}
+                        name="identificationNumber"
+                        label="Identification Number"
+                        placeholder="123456789"
+                    />
+                    <CustomFormField
+                        fieldType={FormFieldType.SKELETON}
+                        control={form.control}
+                        name="identificationDocument"
+                        label="Scanned Copy of Identification Document"
+                        renderSkeleton={(field) => (
+                            <FormControl>
+                                <FileUploader files={field.value} onChange={field.onChange} />
+                            </FormControl>
+                        )}
+                    />
                 </section>
             </form>
         </Form>

@@ -9,6 +9,8 @@ import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Select, SelectContent, SelectTrigger, SelectValue } from "./ui/select";
+import { Textarea } from "./ui/textarea";
 
 export enum FormFieldType {
     INPUT = "input",
@@ -93,6 +95,32 @@ const RenderInput = ({ field, props }: { field: any; props: CustomProps }) => {
                         />
                     </FormControl>
                 </div>
+            );
+        case FormFieldType.TEXTAREA:
+            return (
+                <FormControl>
+                    <Textarea
+                        placeholder={props.placeholder}
+                        {...field}
+                        className="shad-textArea"
+                        disabled={props.disabled}
+                    />
+                </FormControl>
+            );
+        case FormFieldType.SELECT:
+            return (
+                <FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                            <SelectTrigger className="shad-select-trigger">
+                                <SelectValue placeholder={props.placeholder} />
+                            </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="shad-select-content">
+                            {props.children}
+                        </SelectContent>
+                    </Select>
+                </FormControl>
             );
         case FormFieldType.SKELETON:
             return (

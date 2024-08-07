@@ -12,8 +12,12 @@ import { Label } from '../ui/label';
 import Image from 'next/image';
 import { SelectItem } from '../ui/select';
 import FileUploader from '../FileUploader';
+import SubmitButton from '../SubmitButton';
+import { useState } from 'react';
 
 const RegisterForm = ({ user }: { user: User }) => {
+    const [isLoading, setIsLoading] = useState(false);
+
     const form = useForm<z.infer<typeof PatientFormValidation>>({
         resolver: zodResolver(PatientFormValidation),
         defaultValues: {
@@ -251,6 +255,30 @@ const RegisterForm = ({ user }: { user: User }) => {
                         )}
                     />
                 </section>
+                <section className="space-y-6">
+                    <div className="mb-9 space-y-1">
+                        <h2 className="sub-header">Consent and Privacy</h2>
+                    </div>
+                    <CustomFormField
+                        fieldType={FormFieldType.CHECKBOX}
+                        control={form.control}
+                        name="treatmentConsent"
+                        label="I consent to receive treatment for my health condition."
+                    />
+                    <CustomFormField
+                        fieldType={FormFieldType.CHECKBOX}
+                        control={form.control}
+                        name="disclosureConsent"
+                        label="I consent to the use and disclosure of my health information for treatment purposes."
+                    />
+                    <CustomFormField
+                        fieldType={FormFieldType.CHECKBOX}
+                        control={form.control}
+                        name="privacyConsent"
+                        label="I acknowledge that I have reviewed and agree to the privacy policy"
+                    />
+                </section>
+                <SubmitButton isLoading={isLoading}>Submit and Continue</SubmitButton>
             </form>
         </Form>
     )

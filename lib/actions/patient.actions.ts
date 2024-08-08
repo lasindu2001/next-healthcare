@@ -1,5 +1,5 @@
 import { ID, Query } from "node-appwrite";
-import { users } from "../appwrite.config";
+import { storage, users, config, databases } from "../appwrite.config";
 import { parseStringify } from "../utils";
 
 export const createUser = async (user: CreateUserParams) => {
@@ -31,3 +31,35 @@ export const getUser = async (userId: string) => {
         console.error("An error occurred while retrieving the user details:", error);
     }
 };
+
+export const registerPatient = async ({
+    identificationDocument,
+    ...patient
+}: RegisterUserParams) => {
+    try {
+        // upload file
+        let file;
+        if (identificationDocument) {
+            const fileBlob = identificationDocument.get("blobFile") as Blob;
+            const fileName = identificationDocument.get("fileName") as string;
+            const newFile = new File([fileBlob], fileName);
+            file = await storage.createFile(config.BUCKET_ID, ID.unique(), newFile);
+        }
+        // create new patient document
+        const newPatient = await databases.createDocument(
+            config.DATABASE_ID!,
+            config.PATIENT_COLLECTION_ID!,
+            ID.unique(),
+            {
+                identificationDocumentId: file?.$id ? file.$id : null,
+                identificationDocumentUrl: file?.$id
+                    ? `${config.ENDPOINT}/storage/buckets/${config.BUCKET_ID}/files/${file.$id}/view?project=${config.PROJECT_ID}`
+                    : null,
+                ...patient,
+            }
+        );
+        return parseStringify(newPatient);
+    } catch (error) {
+        console.error("An error occurred while creating a new patient:", error);
+    }
+}

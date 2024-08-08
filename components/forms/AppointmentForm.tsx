@@ -12,15 +12,22 @@ import { SelectItem } from "../ui/select";
 import Image from "next/image";
 import { useState } from "react";
 import SubmitButton from "../SubmitButton";
+import { createAppointment } from "@/lib/actions/appointment.actions";
+import { useRouter } from "next/navigation";
 
 const AppointmentForm = ({
+    userId,
+    patientId,
     type = "create",
     appointment,
 }: {
+    userId: string;
+    patientId: string;
     type: "create" | "schedule" | "cancel";
     appointment?: Appointment;
 }) => {
     const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
 
     const AppointmentFormValidation = getAppointmentSchema(type);
 
@@ -37,7 +44,43 @@ const AppointmentForm = ({
         },
     });
 
-    const onSubmit = async () => { }
+    const onSubmit = async (values: z.infer<typeof AppointmentFormValidation>) => {
+        setIsLoading(true);
+        let status;
+        switch (type) {
+            case "schedule":
+                status = "scheduled";
+                break;
+            case "cancel":
+                status = "cancelled";
+                break;
+            default:
+                status = "pending";
+        }
+        try {
+            if (type === "create" && patientId) {
+                const appointment = {
+                    userId,
+                    patient: patientId,
+                    primaryPhysician: values.primaryPhysician,
+                    reason: values.reason!,
+                    schedule: new Date(values.schedule),
+                    status: status as Status,
+                    note: values.note,
+                };
+                const newAppointment = await createAppointment(appointment);
+                if (newAppointment) {
+                    form.reset();
+                    router.push(
+                        `/patients/${userId}/new-appointment/success?appointmentId=${newAppointment.$id}`
+                    );
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
+        setIsLoading(false);
+    }
 
     let buttonLabel;
     switch (type) {
@@ -92,9 +135,9 @@ const AppointmentForm = ({
                             name="schedule"
                             label="Expected Appointment Date"
                             showTimeSelect
-                            dateFormat="MM/dd/yyyy  -  h:mm aa"
+                            dateFormat="MM/dd/yyyy - h:mm aa"
                         />
-                        <div className={`flex flex-col gap-6  ${type === "create" && "xl:flex-row"}`}>
+                        <div className={`flex flex-col gap-6 ${type === "create" && "xl:flex-row"}`}>
                             <CustomFormField
                                 fieldType={FormFieldType.TEXTAREA}
                                 control={form.control}
